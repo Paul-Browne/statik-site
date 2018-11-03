@@ -1,0 +1,66 @@
+{
+	"homepage": {
+		"html": "base",
+		"htmlClass": "[PH1] standard",
+		"head": "head",
+		"favicons": "head/favicons",
+		"global-meta": "head/global-meta",
+		"page-head": {
+			"template": "templates/head/meta.mustache",
+			"data": "data/head/[PH1]-meta.json"
+		},
+		"body": "body",
+		"header": "body/header",
+		"global-footer": "body/footer/[PH2]",
+		"google-analytics": "body/google-analytics",
+		"main": "body/[PH1]"
+	},
+	"homepage2": {
+		"html": "base",
+		"htmlClass": "[PH1] standard",
+		"head": "head",
+		"favicons": "head/favicons",
+		"global-meta": "head/global-meta",
+		"page-head": {
+			"template": "templates/head/meta.mustache",
+			"data": "data/head/[PH1]-meta.json"
+		},
+		"body": "body",
+		"header": "body/header",
+		"global-footer": "body/footer",
+		"google-analytics": "body/google-analytics",
+		"main": "body/[PH1]"
+	},
+	"homepage3": {
+		"html": "base",
+		"htmlClass": "[PH1] standard",
+		"head": "head",
+		"favicons": "head/favicons",
+		"global-meta": "head/global-meta",
+		"page-head": {
+			"template": "templates/head/meta.mustache",
+			"data": "data/head/[PH1]-meta.json"
+		},
+		"body": "body",
+		"header": "body/header",
+		"global-footer": "body/footer",
+		"google-analytics": "body/google-analytics",
+		"main": "body/[PH1]"
+	},
+	"homepage4": {
+		"html": "base",
+		"htmlClass": "[PH1] standard",
+		"head": "head",
+		"favicons": "head/favicons",
+		"global-meta": "head/global-meta",
+		"page-head": {
+			"template": "templates/head/meta.mustache",
+			"data": "data/head/[PH1]-meta.json"
+		},
+		"body": "body",
+		"header": "body/header",
+		"global-footer": "body/footer",
+		"google-analytics": "body/google-analytics",
+		"main": "body/[PH1]"
+	}
+}

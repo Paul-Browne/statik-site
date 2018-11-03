@@ -1,0 +1,8 @@
+{
+    "image": "image/meta/homepage.png",
+    "title": "home · example.com",
+    "socialmedia-title": "example.com - homepage",
+    "google-serp": "this is a description of example.com's homepage that will show up in googles search preview",
+    "socialmedia-description": "this is a description of example.com's homepage that will show up in twitter's and facebook's preview",
+    "url": "example.com"
+}

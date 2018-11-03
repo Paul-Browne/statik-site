@@ -1,0 +1,31 @@
+{
+	"index" : ["homepage", "index"],
+	"about" : ["xyz", "about"],
+	"contact" : ["contact", "contact", "other"],
+	"checkout" : ["xyz", "checkout"],
+	"thankyou" : ["xyz", "thankyou"],
+	"shop": {
+		"index" : ["shop", "index"],
+		"phones" : ["shop", "phones"],
+		"cameras" : ["shop", "cameras"],
+		"computers": {
+			"index" : ["computers", "index"],
+			"laptops" : ["computers", "laptops"],
+			"desktops" : ["computers", "desktops"],
+			"gaming" : ["computers", "gaming"],
+			"accessories": {
+				"index" : ["accessories", "index"],
+				"mice" : ["accessories", "mice"],
+				"keyboards" : ["accessories", "keyboards"],
+				"headphones" : ["accessories", "headphones"]
+			}
+		}
+	},
+	"blog": {
+		"index" : ["blog", "index"],
+		"post-1" : ["blog-post", "post-1"],
+		"post-2" : ["blog-post", "post-2"],
+		"post-3" : ["blog-post", "post-3"]
+	},
+	"404": "404"
+}
