@@ -133,6 +133,11 @@ fs.readFile('sitemap.json', 'utf8', function(err, data) {
     if (err) {
         console.error(err);
     } else {
+        mkdirp(publicRoot, function(err) {
+            if (err) {
+                console.error(err);
+            }
+        });
         jsonWalker(JSON.parse(data));
     }
 });
