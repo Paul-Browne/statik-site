@@ -1,4 +1,3 @@
-const path = require("path");
 const fs = require('fs');
 const os = require('os');
 const http2 = require('spdy');
@@ -6,7 +5,6 @@ const serveStatic = require('serve-static');
 const compression = require('compression');
 const express = require('express');
 const env = require('dotenv');
-
 env.config();
 
 const options = {

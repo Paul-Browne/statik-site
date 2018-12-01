@@ -6,12 +6,19 @@
 		"favicons": "head/favicons",
 		"global-meta": "head/global-meta",
 		"page-head": {
+			"engine" : "mustache",
 			"template": "templates/head/meta.mustache",
-			"data": "data/head/[PH1]-meta.json"
+			"data": "data/head/[PH1]-meta.json",
+			"object": "[PH2]"
 		},
 		"body": "body",
 		"header": "body/header",
-		"global-footer": "body/footer/[PH2]",
+		"global-footer": {
+			"engine": "mustache",
+			"template" : "templates/body/footer.mustache",
+			"data": "https://elisa.fi/kauppa/rest/products/devices/Huawei-P20-64-Gt"
+		},
+		"tester": "body/footer",
 		"google-analytics": "body/google-analytics",
 		"main": "body/[PH1]"
 	},

@@ -10,14 +10,30 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "art-template": "^4.13.2",
+    "autoprefixer": "^9.3.1",
     "chokidar": "^2.0.4",
     "compression": "^1.7.3",
+    "dot": "^1.1.2",
     "dotenv": "^6.1.0",
+    "ejs": "^2.6.1",
     "express": "^4.16.3",
+    "fs-extra": "^7.0.0",
     "html-minifier": "^3.5.21",
+    "image-size": "^0.6.3",
+    "jimp": "^0.6.0",
     "mkdirp": "^0.5.1",
     "mustache": "^3.0.0",
+    "postcss": "^7.0.6",
+    "pug": "^2.0.3",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
     "serve-static": "^1.13.2",
-    "spdy": "^3.4.7"
+    "spdy": "^3.4.7",
+    "uglify-js": "^3.4.9",
+    "underscore": "^1.9.1",
+    "handlebars": "^4.0.12",
+    "postcss-clean": "^1.1.0"
   }
 }
