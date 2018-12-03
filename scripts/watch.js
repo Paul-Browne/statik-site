@@ -29,14 +29,14 @@ var watcherFiles = chokidar.watch([contentDirectoryPath, "contentmap.json", "sit
     persistent: true,
     ignoreInitial: true
 });
-runScript('./build.js', function(err) {
+runScript('scripts/build.js', function(err) {
     if (err) {
         console.error(err);
     }
 });
 watcherFiles.on('all', (event, path) => {
     console.log(event, path);
-    runScript('./build.js', function(err) {
+    runScript('scripts/build.js', function(err) {
         if (err) {
             console.error(err);
         }
@@ -49,14 +49,14 @@ var watcherImages = chokidar.watch(sourceDirectoryName + "/images", {
     persistent: true,
     ignoreInitial: true
 });
-runScript('./images.js', function(err) {
+runScript('scripts/images.js', function(err) {
     if (err) {
         console.error(err);
     }
 });
 watcherImages.on('all', (event, path) => {
     console.log(event, path);
-    runScript('./images.js', function(err) {
+    runScript('scripts/images.js', function(err) {
         if (err) {
             console.error(err);
         }
@@ -69,14 +69,14 @@ var watcherCss = chokidar.watch(sourceDirectoryName + "/css", {
     persistent: true,
     ignoreInitial: true
 });
-runScript('./css.js', function(err) {
+runScript('scripts/css.js', function(err) {
     if (err) {
         console.error(err);
     }
 });
 watcherImages.on('all', (event, path) => {
     console.log(event, path);
-    runScript('./css.js', function(err) {
+    runScript('scripts/css.js', function(err) {
         if (err) {
             console.error(err);
         }
@@ -89,14 +89,14 @@ watcherImages.on('all', (event, path) => {
 //     persistent: true,
 //     ignoreInitial: true
 // });
-// runScript('./js.js', function(err) {
+// runScript('scripts/js.js', function(err) {
 //     if (err) {
 //         console.error(err);
 //     }
 // });
 // watcherImages.on('all', (event, path) => {
 //     console.log(event, path);
-//     runScript('./js.js', function(err) {
+//     runScript('scripts/js.js', function(err) {
 //         if (err) {
 //             console.error(err);
 //         }
@@ -105,7 +105,7 @@ watcherImages.on('all', (event, path) => {
 // });
 
 
-runScript('./serve.js', function(err) {
+runScript('scripts/serve.js', function(err) {
     if (err) {
         console.error(err);
     }

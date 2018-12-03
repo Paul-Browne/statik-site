@@ -35,12 +35,20 @@ function _request(url) {
     })
 }
 
-// todo
-// add the [[something||default]]
+function replacePlaceholdersWithDefaults(html){
+    if (html.match(/\[\[(\w|-)*?\|\|(\w|-)*?\]\]/g)) {
+        html.match(/\[\[(\w|-)*?\|\|(\w|-)*?\]\]/g).forEach(function(ph) {
+            var def = ph.match(/\|\|(\w|-)*/)[0].slice(2);
+            html = html.replace(ph, def);
+        }, this)
+    }
+    return html;
+}
+
 
 function removeUnusedPlaceholders(html) {
-    if (html.match(/\[\[(\w|-)*\]\]/g)) {
-        html.match(/\[\[(\w|-)*\]\]/g).forEach(function(ph) {
+    if (html.match(/\[\[(\w|-)*?\]\]/g)) {
+        html.match(/\[\[(\w|-)*?\]\]/g).forEach(function(ph) {
             html = html.replace(ph, "");
         }, this)
     }
@@ -67,7 +75,12 @@ function isExternal(path) {
 async function generateHTML(mapObj, obj) {
     var output;
     for (var key in mapObj) {
-        var string = "[[" + key + "]]";
+        var string = new RegExp("\\[\\[" + key + ".*?\\]\\]");
+
+        // todo improve regex so html and htmlClass can be used as keys
+        // current regex will screw that up
+        // console.log(string);
+
         var fileContents;
         if (key === "html") {
             if (isExternal(mapObj[key])) {
@@ -143,8 +156,9 @@ function createFile(name, dir, obj) {
             var mapObj = json[key];
             generateHTML(mapObj, obj).then(out => {
                 html = removeUnusedPlaceholders(out);
+                html = replacePlaceholdersWithDefaults(html);
                 html = minify(html, {
-                    removeAttributeQuotes: true,
+                    removeAttributeQuotes: false,
                     collapseWhitespace: true,
                     minifyCSS: true,
                     minifyJS: true,
