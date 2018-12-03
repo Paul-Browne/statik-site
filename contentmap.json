@@ -2,7 +2,6 @@
 	"homepage": {
 		"html": "base",
 		"htmlClass": "[PH1] standard",
-		"language": "fr",
 		"head": "head",
 		"favicons": "head/favicons",
 		"global-meta": "head/global-meta",

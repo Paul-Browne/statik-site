@@ -36,9 +36,9 @@ function _request(url) {
 }
 
 function replacePlaceholdersWithDefaults(html){
-    if (html.match(/\[\[(\w|-)*?\|\|(\w|-)*?\]\]/g)) {
-        html.match(/\[\[(\w|-)*?\|\|(\w|-)*?\]\]/g).forEach(function(ph) {
-            var def = ph.match(/\|\|(\w|-)*/)[0].slice(2);
+    if (html.match(/\[\[.*?\|\|.*?\]\]/g)) {
+        html.match(/\[\[.*?\|\|.*?\]\]/g).forEach(function(ph) {
+            var def = ph.match(/\|\|.*?\]\]/)[0].slice(2).replace("]]", "");
             html = html.replace(ph, def);
         }, this)
     }
@@ -47,8 +47,8 @@ function replacePlaceholdersWithDefaults(html){
 
 
 function removeUnusedPlaceholders(html) {
-    if (html.match(/\[\[(\w|-)*?\]\]/g)) {
-        html.match(/\[\[(\w|-)*?\]\]/g).forEach(function(ph) {
+    if (html.match(/\[\[(\w|-|_)*?\]\]/g)) {
+        html.match(/\[\[(\w|-|_)*?\]\]/g).forEach(function(ph) {
             html = html.replace(ph, "");
         }, this)
     }
@@ -75,12 +75,7 @@ function isExternal(path) {
 async function generateHTML(mapObj, obj) {
     var output;
     for (var key in mapObj) {
-        var string = new RegExp("\\[\\[" + key + ".*?\\]\\]");
-
-        // todo improve regex so html and htmlClass can be used as keys
-        // current regex will screw that up
-        // console.log(string);
-
+        var string = new RegExp("\\[\\[" + key + "(\\|\\|.*?\\]\\]\|\\]\\])");
         var fileContents;
         if (key === "html") {
             if (isExternal(mapObj[key])) {
