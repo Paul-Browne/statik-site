@@ -1,73 +1,22 @@
 {
-	"homepage": {
+	"template-1": {
 		"html": "base",
 		"htmlClass": "[PH1] standard",
 		"head": "head",
 		"favicons": "head/favicons",
-		"global-meta": "head/global-meta",
-		"page-head": {
-			"engine" : "mustache",
-			"template": "templates/head/meta.mustache",
-			"data": "data/head/[PH1]-meta.json",
-			"object": "[PH2]"
-		},
-		"body": "body",
-		"header": "body/header",
-		"global-footer": {
+		"meta": {
 			"engine": "mustache",
-			"template" : "templates/body/footer.mustache",
-			"data": "https://elisa.fi/kauppa/rest/products/devices/Huawei-P20-64-Gt"
+			"template" : "templates/head/meta.mustache",
+			"data": "data/head/meta.json",
+			"object": "[PH1]"
 		},
-		"tester": "body/footer",
-		"google-analytics": "body/google-analytics",
-		"main": "body/[PH1]"
-	},
-	"homepage2": {
-		"html": "base",
-		"htmlClass": "[PH1] standard",
-		"head": "head",
-		"favicons": "head/favicons",
-		"global-meta": "head/global-meta",
-		"page-head": {
-			"template": "templates/head/meta.mustache",
-			"data": "data/head/[PH1]-meta.json"
-		},
+		"head-css":"head/css",
+		"head-js":"head/js",
 		"body": "body",
 		"header": "body/header",
-		"global-footer": "body/footer",
+		"footer": "body/footer",
+		"body-js": "body/js",
 		"google-analytics": "body/google-analytics",
-		"main": "body/[PH1]"
-	},
-	"homepage3": {
-		"html": "base",
-		"htmlClass": "[PH1] standard",
-		"head": "head",
-		"favicons": "head/favicons",
-		"global-meta": "head/global-meta",
-		"page-head": {
-			"template": "templates/head/meta.mustache",
-			"data": "data/head/[PH1]-meta.json"
-		},
-		"body": "body",
-		"header": "body/header",
-		"global-footer": "body/footer",
-		"google-analytics": "body/google-analytics",
-		"main": "body/[PH1]"
-	},
-	"homepage4": {
-		"html": "base",
-		"htmlClass": "[PH1] standard",
-		"head": "head",
-		"favicons": "head/favicons",
-		"global-meta": "head/global-meta",
-		"page-head": {
-			"template": "templates/head/meta.mustache",
-			"data": "data/head/[PH1]-meta.json"
-		},
-		"body": "body",
-		"header": "body/header",
-		"global-footer": "body/footer",
-		"google-analytics": "body/google-analytics",
-		"main": "body/[PH1]"
+		"main": "body/main/[PH1]"
 	}
 }

@@ -1,3 +1,4 @@
 {
-	"index-0001" : ["homepage", "index", "foo"]
+	"index" : ["template-1", "index"],
+	"404": ["template-1", "four-zero-four"]
 }

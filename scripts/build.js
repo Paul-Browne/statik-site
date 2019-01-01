@@ -1,240 +1,365 @@
 var timerStart = Date.now();
 
-const path = require("path");
 const fs = require('fs-extra');
-const os = require('os');
+const path = require('path');
+const childProcess = require('child_process');
+const chokidar = require('chokidar');
+const mime = require('mime-types');
+const mkdirp = require('mkdirp');
 const env = require('dotenv');
 env.config();
-const mkdirp = require('mkdirp');
-const minify = require('html-minifier').minify;
-const request = require('request');
 
-// template engines 
-const mustache = require('mustache');
-const handlebars = require('handlebars');
-const underscore = require('underscore');
-const art = require('art-template');
-const ejs = require('ejs');
-const dot = require('dot');
-const pug = require('pug');
+const jimp = require('jimp');
+const sizeOf = require('image-size');
+const svgo = require('svgo');
+
+const uglifyJS = require("uglify-js");
+const babel = require("@babel/core");
+
+const postcss = require('postcss');
+const autoprefixer = require('autoprefixer');
+const cleanCSS = require('postcss-clean');
+
+const sass = require('node-sass');
+const less = require('less');
 
 const publicDirectoryName = process.env.PUBLIC_DIR_NAME || 'public';
 const sourceDirectoryName = process.env.SOURCE_DIR_NAME || 'src';
 const contentDirectoryName = process.env.CONTENT_DIR_NAME || 'content';
 const contentDirectoryPath = sourceDirectoryName + "/" + contentDirectoryName;
 
-function _request(url) {
-    return new Promise((resolve, reject) => {
-        request(url, (error, response, body) => {
-            if (!error && response.statusCode === 200) {
-                resolve(body);
-            } else {
-                reject(error);
-            }
-        })
-    })
-}
-
-function replacePlaceholdersWithDefaults(html){
-    if (html.match(/\[\[.*?\|\|.*?\]\]/g)) {
-        html.match(/\[\[.*?\|\|.*?\]\]/g).forEach(function(ph) {
-            var def = ph.match(/\|\|.*?\]\]/)[0].slice(2).replace("]]", "");
-            html = html.replace(ph, def);
-        }, this)
-    }
-    return html;
-}
-
-
-function removeUnusedPlaceholders(html) {
-    if (html.match(/\[\[(\w|-|_)*?\]\]/g)) {
-        html.match(/\[\[(\w|-|_)*?\]\]/g).forEach(function(ph) {
-            html = html.replace(ph, "");
-        }, this)
-    }
-    return html;
-}
-
-function replacePlaceholders(filename, obj) {
-    if (filename.match(/\[\w*\d+\]/g)) {
-        filename.match(/\[\w*\d+\]/g).forEach(function(ph, index) {
-            filename = filename.replace(ph, obj[ph.replace(/\D/g, "")]);
-        }, this)
-    }
-    return filename;
-}
-
-function isExternal(path) {
-    if (/^https?:\/\//.test(path)) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-async function generateHTML(mapObj, obj) {
-    var output;
-    for (var key in mapObj) {
-        var string = new RegExp("\\[\\[" + key + "(\\|\\|.*?\\]\\]\|\\]\\])");
-        var fileContents;
-        if (key === "html") {
-            if (isExternal(mapObj[key])) {
-                output = await _request(replacePlaceholders(mapObj[key], obj));
-            } else {
-                output = fs.readFileSync(contentDirectoryPath + "/" + replacePlaceholders(mapObj[key], obj) + ".html", 'utf8');
-            }
-        } else if (typeof mapObj[key] === 'object') {
-            var template;
-            if (isExternal(mapObj[key].template)) {
-                template = await _request(replacePlaceholders(mapObj[key].template, obj));
-            } else {
-                template = fs.readFileSync(contentDirectoryPath + "/" + replacePlaceholders(mapObj[key].template, obj), 'utf8');
-            }
-            var data;
-            if (isExternal(mapObj[key].data)) {
-                data = await _request(replacePlaceholders(mapObj[key].data, obj));
-            } else {
-                data = fs.readFileSync(contentDirectoryPath + "/" + replacePlaceholders(mapObj[key].data, obj), 'utf8');
-            }
-            if (mapObj[key].object) {
-                data = JSON.parse(data)[replacePlaceholders(mapObj[key].object, obj)];
-            } else {
-                data = JSON.parse(data);
-            }
-            if (mapObj[key].engine) {
-                if (mapObj[key].engine === "mustache") {
-                    fileContents = mustache.render(template, data);
-                } else if (mapObj[key].engine === "ejs") {
-                    fileContents = ejs.render(template, data);
-                } else if (mapObj[key].engine === "handlebars") {
-                    template = handlebars.compile(template);
-                    fileContents = template(data);
-                } else if (mapObj[key].engine === "underscore" || mapObj[key].engine === "_") {
-                    template = underscore.template(template);
-                    fileContents = template(data);
-                } else if (mapObj[key].engine === "dot") {
-                    template = dot.template(template);
-                    fileContents = template(data);
-                } else if (mapObj[key].engine === "pug") {
-                    template = pug.compile(template);
-                    fileContents = template(data);
-                } else if (mapObj[key].engine === "art") {
-                    fileContents = art.render(template, data);
-                }
-            } else {
-                // default to mustache template engine if engine is undefined
-                fileContents = mustache.render(template, data);
-            }
-        } else {
-            try {
-                if (isExternal(mapObj[key])) {
-                    fileContents = await _request(replacePlaceholders(mapObj[key], obj));
-                } else {
-                    fileContents = fs.readFileSync(contentDirectoryPath + "/" + replacePlaceholders(mapObj[key], obj) + ".html", 'utf8');
-                }
-            } catch (err) {
-                fileContents = replacePlaceholders(mapObj[key], obj);
-            }
-        }
-        output = output.replace(string, fileContents);
-    }
-    return output;
-}
-
-function createFile(name, dir, obj) {
-    var dirPath = dir ? "/" + dir : "";
-    var data = fs.readFileSync('contentmap.json', 'utf8');
-    var json = JSON.parse(data);
-    var html;
-    for (var key in json) {
-        if (key === obj[0]) {
-            var mapObj = json[key];
-            generateHTML(mapObj, obj).then(out => {
-                html = removeUnusedPlaceholders(out);
-                html = replacePlaceholdersWithDefaults(html);
-                html = minify(html, {
-                    removeAttributeQuotes: false,
-                    collapseWhitespace: true,
-                    minifyCSS: true,
-                    minifyJS: true,
-                    removeComments: true,
-                    decodeEntities: true
-                });
-                fs.writeFile(publicDirectoryName + dirPath + "/" + name + ".html", html, function(err) {
-                    if (err) {
-                        console.error(err);
-                    }
-                });
-                newTime = Date.now() - timerStart;
-                console.log("https://localhost:8888/" + dirPath + (dirPath ? "/" : "") + name);
-                console.log(publicDirectoryName + dirPath + "/" + name + ".html generated, total time elapsed " + (newTime / 1000).toFixed(1) + " s");
-            })
-        }
-    }
-}
-
-function jsonWalker(obj, lvl) {
-    for (var key in obj) {
-        if (typeof obj[key] === 'object' && !(obj[key] instanceof Array) && !(obj[key] instanceof String)) {
-            if (lvl) {
-                mkdirp(publicDirectoryName + "/" + lvl + "/" + key, function(err) {
-                    if (err) {
-                        console.error(err);
-                    }
-                });
-                jsonWalker(obj[key], lvl + "/" + key);
-            } else {
-                mkdirp(publicDirectoryName + "/" + key, function(err) {
-                    if (err) {
-                        console.error(err);
-                    }
-                });
-                jsonWalker(obj[key], key);
-            }
-        } else if (obj[key] instanceof Array) {
-            // create file
-            if (lvl) {
-                createFile(key, lvl, obj[key]);
-            } else {
-                createFile(key, lvl, obj[key]);
-            }
-        }
-    }
-}
-
-function build() {
-    fs.readFile('sitemap.json', 'utf8', function(err, data) {
-        if (err) {
-            console.error(err);
-        } else {
-            mkdirp(publicDirectoryName, function(err) {
-                if (err) {
-                    console.error(err);
-                } else {
-
-                    // everything else
-                    // fs.copy(sourceDirectoryName, publicDirectoryName, err => {
-                    //     if (err) {
-                    //         return console.error(err);
-                    //     } else {
-                    //         fs.remove(publicDirectoryName + '/' + contentDirectoryName, err => {
-                    //             if (err) {
-                    //                 return console.error(err);
-                    //             }
-                    //         })
-                    //     }
-                    // });
-                    // end everything else
-
-                    // todo
-                    // copy everything else except /content and /images and whatever else is defined in the watch.js 
-
-                    jsonWalker(JSON.parse(data));
-                }
-            });
-        }
+function runScript(scriptPath, callback) {
+    var invoked = false;
+    var process = childProcess.fork(scriptPath);
+    process.on('error', function(err) {
+        if (invoked) return;
+        invoked = true;
+        callback(err);
+    });
+    process.on('exit', function(code) {
+        if (invoked) return;
+        invoked = true;
+        var err = code === 0 ? null : new Error('exit code ' + code);
+        callback(err);
     });
 }
 
+function reformatOutputDirectory(dirOut, width) {
+    var out = dirOut.replace("images", "images/" + width);
+    return out;
+}
 
-build();
+function imageMaker(obj) {
+    if (obj.width && sizeOf(obj.dirIn + obj.fileName).width >= obj.width) {
+        jimp.read(obj.dirIn + obj.fileName, (err, file) => {
+            if (err) {
+                console.log(err);
+            } else {
+                file
+                    .resize(obj.width, jimp.AUTO)
+                    .quality(obj.quality)
+                    .write(reformatOutputDirectory(obj.dirOut, obj.width) + obj.fileName);
+                console.log(reformatOutputDirectory(obj.dirOut, obj.width) + obj.fileName + " generated, total time elapsed " + ((Date.now() - timerStart) / 1000).toFixed(2) + " seconds");
+            }
+        });
+    } else if (!obj.width) {
+        jimp.read(obj.dirIn + obj.fileName, (err, file) => {
+            if (err) {
+                console.log(err);
+            } else {
+                file
+                    .quality(obj.quality)
+                    .write(obj.dirOut + obj.fileName);
+                console.log(obj.dirOut + obj.fileName + " generated, total time elapsed " + ((Date.now() - timerStart) / 1000).toFixed(2) + " seconds");
+            }
+        });
+    }
+}
+
+var builtHTML = false;
+
+function readDirRecursive(inDirectory, outDirectory) {
+    fs.readdir(inDirectory, (err, filesOrDirectories) => {
+        filesOrDirectories.forEach(filename => {
+            if (fs.lstatSync(inDirectory + filename).isDirectory()) {
+                readDirRecursive(inDirectory + filename + "/", outDirectory + filename + "/");
+            } else {
+                if (inDirectory.indexOf(contentDirectoryPath) === 0 && !builtHTML) {
+                    builtHTML = true;
+                    runScript("./scripts/html.js", function(err) {
+                        if (err) {
+                            console.error(err);
+                        }
+                    });
+                } else if (inDirectory.indexOf(sourceDirectoryName + "/css") === 0) {
+                    if (mime.lookup(filename) === "text/css") {
+                        var source = fs.readFileSync(inDirectory + filename, 'utf8');
+                        postcss([
+                                autoprefixer({
+                                    browsers: [
+                                        "> 0.5%",
+                                        "IE 10"
+                                    ]
+                                }),
+                                cleanCSS()
+                            ])
+                            .process(source, { from: inDirectory + filename, to: outDirectory + filename })
+                            .then(result => {
+                                mkdirp(outDirectory, function(err) {
+                                    if (err) {
+                                        console.error(err);
+                                    } else {
+                                        fs.writeFile(outDirectory + filename, result.css, function(err) {
+                                            if (err) {
+                                                console.error(err);
+                                            } else {
+                                                console.log(outDirectory + filename + " generated, total time elapsed " + ((Date.now() - timerStart) / 1000).toFixed(2) + " seconds");
+                                            }
+                                        });
+                                    }
+                                });
+                            })
+                    }
+                } else if (inDirectory.indexOf(sourceDirectoryName + "/scss") === 0 || inDirectory.indexOf(sourceDirectoryName + "/sass") === 0) {
+                    if (mime.lookup(filename) === "text/x-scss" || mime.lookup(filename) === "text/x-sass") {
+                        sass.render({
+                            file: inDirectory + filename,
+                        }, function(err, result) {
+                            if (err) {
+                                console.error(err);
+                            } else {
+                                postcss([
+                                        autoprefixer({
+                                            browsers: [
+                                                "> 0.5%",
+                                                "IE 10"
+                                            ]
+                                        }),
+                                        cleanCSS()
+                                    ])
+                                    .process(result.css, { from: inDirectory + filename, to: outDirectory.replace(/\/s(a|c)ss/, "/css") + filename.replace(/\.s(a|c)ss/, ".css") })
+                                    .then(res => {
+                                        mkdirp(outDirectory.replace(/\/s(a|c)ss/, "/css"), function(err) {
+                                            if (err) {
+                                                console.error(err);
+                                            } else {
+                                                fs.writeFile(outDirectory.replace(/\/s(a|c)ss/, "/css") + filename.replace(/\.s(a|c)ss/, ".css"), res.css, function(err) {
+                                                    if (err) {
+                                                        console.error(err);
+                                                    } else {
+                                                        console.log(outDirectory.replace(/\/s(a|c)ss/, "/css") + filename.replace(/\.s(a|c)ss/, ".css") + " generated, total time elapsed " + ((Date.now() - timerStart) / 1000).toFixed(2) + " seconds");
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    })
+                            }
+                        });
+                    }
+                } else if (inDirectory.indexOf(sourceDirectoryName + "/less") === 0) {
+                    if (mime.lookup(filename) === "text/less") {
+                        less.render(fs.readFileSync(inDirectory + filename, 'utf8'), function(err, result) {
+                            if (err) {
+                                console.error(err);
+                            } else {
+                                postcss([
+                                        autoprefixer({
+                                            browsers: [
+                                                "> 0.5%",
+                                                "IE 10"
+                                            ]
+                                        }),
+                                        cleanCSS()
+                                    ])
+                                    .process(result.css, { from: inDirectory + filename, to: outDirectory.replace("/less", "/css") + filename.replace(".less", ".css") })
+                                    .then(res => {
+                                        mkdirp(outDirectory.replace("/less", "/css"), function(err) {
+                                            if (err) {
+                                                console.error(err);
+                                            } else {
+                                                fs.writeFile(outDirectory.replace("/less", "/css") + filename.replace(".less", ".css"), res.css, function(err) {
+                                                    if (err) {
+                                                        console.error(err);
+                                                    } else {
+                                                        console.log(outDirectory.replace("/less", "/css") + filename.replace(".less", ".css") + " generated, total time elapsed " + ((Date.now() - timerStart) / 1000).toFixed(2) + " seconds");
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    })
+                            }
+                        })
+                    }
+                } else if (inDirectory.indexOf(sourceDirectoryName + "/js") === 0) {
+                    if (mime.lookup(filename) === "application/javascript") {
+                        var source = fs.readFileSync(inDirectory + filename, 'utf8');
+                        var transform = babel.transformSync(source, { filename }).code;
+                        var result = uglifyJS.minify(transform);
+                        mkdirp(outDirectory, function(err) {
+                            if (err) {
+                                console.error(err);
+                            } else {
+                                fs.writeFile(outDirectory + filename, result.code, function(err) {
+                                    if (err) {
+                                        console.error(err);
+                                    } else {
+                                        console.log(outDirectory + filename + " generated, total time elapsed " + ((Date.now() - timerStart) / 1000).toFixed(2) + " seconds");
+                                    }
+                                });
+                            }
+                        });
+                    }
+                } else if (inDirectory.indexOf(sourceDirectoryName + "/images") === 0) {
+                    if (mime.lookup(filename) === "image/jpeg" || mime.lookup(filename) === "image/png" || mime.lookup(filename) === "image/gif") { // todo check gif
+                        imageMaker({
+                            dirIn: inDirectory,
+                            dirOut: outDirectory,
+                            fileName: filename,
+                            width: 40,
+                            quality: 0
+                        });
+                        imageMaker({
+                            dirIn: inDirectory,
+                            dirOut: outDirectory,
+                            fileName: filename,
+                            width: 400,
+                            quality: 75
+                        });
+                        imageMaker({
+                            dirIn: inDirectory,
+                            dirOut: outDirectory,
+                            fileName: filename,
+                            width: 800,
+                            quality: 75
+                        });
+                        imageMaker({
+                            dirIn: inDirectory,
+                            dirOut: outDirectory,
+                            fileName: filename,
+                            width: 1200,
+                            quality: 75
+                        });
+                        imageMaker({
+                            dirIn: inDirectory,
+                            dirOut: outDirectory,
+                            fileName: filename,
+                            width: 1600,
+                            quality: 75
+                        });
+                        imageMaker({
+                            dirIn: inDirectory,
+                            dirOut: outDirectory,
+                            fileName: filename,
+                            width: 2000,
+                            quality: 75
+                        });
+                        imageMaker({
+                            dirIn: inDirectory,
+                            dirOut: outDirectory,
+                            fileName: filename,
+                            quality: 75
+                        });
+                    } else if (mime.lookup(filename) === "image/svg+xml") {
+                        var svgoOpts = new svgo({
+                            plugins: [{
+                                cleanupAttrs: true
+                            }, {
+                                removeDoctype: true
+                            }, {
+                                removeXMLProcInst: true
+                            }, {
+                                removeComments: true
+                            }, {
+                                removeMetadata: true
+                            }, {
+                                removeTitle: true
+                            }, {
+                                removeDesc: true
+                            }, {
+                                removeUselessDefs: true
+                            }, {
+                                removeEditorsNSData: true
+                            }, {
+                                removeEmptyAttrs: true
+                            }, {
+                                removeHiddenElems: true
+                            }, {
+                                removeEmptyText: true
+                            }, {
+                                removeEmptyContainers: true
+                            }, {
+                                removeViewBox: false
+                            }, {
+                                cleanupEnableBackground: true
+                            }, {
+                                convertStyleToAttrs: true
+                            }, {
+                                convertColors: true
+                            }, {
+                                convertPathData: true
+                            }, {
+                                convertTransform: true
+                            }, {
+                                removeUnknownsAndDefaults: true
+                            }, {
+                                removeNonInheritableGroupAttrs: true
+                            }, {
+                                removeUselessStrokeAndFill: true
+                            }, {
+                                removeUnusedNS: true
+                            }, {
+                                cleanupIDs: true
+                            }, {
+                                cleanupNumericValues: true
+                            }, {
+                                moveElemsAttrsToGroup: true
+                            }, {
+                                moveGroupAttrsToElems: true
+                            }, {
+                                collapseGroups: true
+                            }, {
+                                removeRasterImages: false
+                            }, {
+                                mergePaths: true
+                            }, {
+                                convertShapeToPath: true
+                            }, {
+                                sortAttrs: true
+                            }, {
+                                removeDimensions: true
+                            }]
+                        });
+                        svgoOpts.optimize(fs.readFileSync(inDirectory + filename, 'utf8')).then(result => {
+                            mkdirp(outDirectory, function(err) {
+                                if (err) {
+                                    console.error(err);
+                                } else {
+                                    fs.writeFile(outDirectory + filename, result.data, function(err) {
+                                        if (err) {
+                                            console.error(err);
+                                        } else {
+                                            console.log(outDirectory + filename + " generated, total time elapsed " + ((Date.now() - timerStart) / 1000).toFixed(2) + " seconds");
+                                        }
+                                    });
+                                }
+                            });
+                        });
+                    }
+                } else {
+                    // copy everything else
+                    if (inDirectory.indexOf(contentDirectoryPath) !== 0) {
+                        fs.copy(inDirectory + filename, outDirectory + filename, err => {
+                            if (err) {
+                                console.error(err)
+                            } else {
+                                console.log(outDirectory + filename + " generated, total time elapsed " + ((Date.now() - timerStart) / 1000).toFixed(2) + " seconds");
+                            }
+                        })
+                    }
+                }
+            }
+        });
+    })
+}
+
+readDirRecursive(sourceDirectoryName + "/", publicDirectoryName + "/");

@@ -1,13 +1,15 @@
 {
-  "name": "msg",
+  "name": "statik-site",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "static site generator",
   "scripts": {
     "build": "node scripts/build.js",
-    "start": "node scripts/watch.js"
+    "serve": "node scripts/serve.js",
+    "watch": "node scripts/watch.js",
+    "start": "run-p build watch serve",
+    "restart": "run-p watch serve"
   },
-  "author": "",
+  "author": "Paul Browne",
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.1.6",
@@ -25,8 +27,11 @@
     "html-minifier": "^3.5.21",
     "image-size": "^0.6.3",
     "jimp": "^0.6.0",
+    "less": "^3.9.0",
     "mkdirp": "^0.5.1",
     "mustache": "^3.0.0",
+    "node-sass": "^4.11.0",
+    "npm-run-all": "^4.1.5",
     "postcss": "^7.0.6",
     "postcss-clean": "^1.1.0",
     "pug": "^2.0.3",
@@ -34,6 +39,7 @@
     "request-promise": "^4.2.2",
     "serve-static": "^1.13.2",
     "spdy": "^3.4.7",
+    "svgo": "^1.1.1",
     "uglify-js": "^3.4.9",
     "underscore": "^1.9.1"
   }

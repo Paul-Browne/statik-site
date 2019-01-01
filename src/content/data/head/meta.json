@@ -1,0 +1,26 @@
+{
+	"index": {
+	    "image": "/android-chrome-192x192.png",
+	    "title": "home · example.com",
+	    "twitter-card": "summary",
+	    "twitter-handle": "@twitterHandle",
+	    "og-type": "article",
+	    "og-site-name" : "example.com",
+	    "socialmedia-title": "example.com - homepage",
+	    "google-serp": "this is a description of example.com's homepage that will show up in googles search preview",
+	    "socialmedia-description": "this is a description of example.com's homepage that will show up in twitter's and facebook's preview",
+	    "url": "example.com"
+	},
+	"four-zero-four": {
+		"image": "/android-chrome-192x192.png",
+		"title": "404 :(",
+		"twitter-card": "summary",
+		"twitter-handle": "@twitterHandle",
+		"og-type": "article",
+		"og-site-name" : "example.com",
+		"socialmedia-title": "example.com - 404 page",
+		"google-serp": "this is a description of example.com's 404 page that will show up in googles search preview",
+		"socialmedia-description": "this is a description of example.com's 404 page that will show up in twitter's and facebook's preview",
+		"url": "example.com/404"
+	}
+}

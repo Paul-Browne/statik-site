@@ -1,8 +1,18 @@
-body {
-	margin: 0;
-	display:flex;
+body{
+	font-family: 'Open Sans';
 }
 
-::placeholder {
-  color: gray;
+html.index main,
+html.four-zero-four main{
+	min-height: calc(100vh - 100px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+html.standard footer.body{
+	color: #fff;
+	text-align: center;
+	background: #666;
+	padding: 1rem 0;
 }
