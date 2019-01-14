@@ -192,11 +192,7 @@ function jsonWalker(obj, lvl) {
             }
         } else if (obj[key] instanceof Array) {
             // create file
-            if (lvl) {
-                createFile(key, lvl, obj[key]);
-            } else {
-                createFile(key, lvl, obj[key]);
-            }
+            createFile(key, lvl, obj[key]);
         }
     }
 }

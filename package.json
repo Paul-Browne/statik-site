@@ -7,7 +7,8 @@
     "serve": "node scripts/serve.js",
     "watch": "node scripts/watch.js",
     "start": "run-p build watch serve",
-    "restart": "run-p watch serve"
+    "restart": "run-p watch serve",
+    "audit": "node scripts/audit.js"
   },
   "author": "Paul Browne",
   "license": "MIT",
