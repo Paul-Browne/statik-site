@@ -98,12 +98,7 @@ function watching() {
                     // .css
                     var source = fs.readFileSync(pathname, 'utf8');
                     postcss([
-                        autoprefixer({
-                            browsers: [
-                                "> 0.5%",
-                                "IE 10"
-                            ]
-                        }),
+                        autoprefixer(),
                         cleanCSS()
                     ])
                     .process(source, { from: pathname, to: pathname.replace(sourceDirectoryName, publicDirectoryName) })
@@ -133,12 +128,7 @@ function watching() {
                             console.error(err);
                         }else{
                             postcss([
-                                autoprefixer({
-                                    browsers: [
-                                        "> 0.5%",
-                                        "IE 10"
-                                    ]
-                                }),
+                                autoprefixer(),
                                 cleanCSS()
                             ])
                             .process(result.css, { from: pathname, to: pathname.replace(/\/s(a|c)ss\//, "/css/").replace(/\.s(a|c)ss/, ".css").replace(sourceDirectoryName, publicDirectoryName) })
@@ -168,12 +158,7 @@ function watching() {
                             console.error(err);
                         }else{
                             postcss([
-                                autoprefixer({
-                                    browsers: [
-                                        "> 0.5%",
-                                        "IE 10"
-                                    ]
-                                }),
+                                autoprefixer(),
                                 cleanCSS()
                             ])
                             .process(result.css, { from: pathname, to: pathname.replace("/less/", "/css/").replace(".less", ".css").replace(sourceDirectoryName, publicDirectoryName) })

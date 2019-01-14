@@ -95,12 +95,7 @@ function readDirRecursive(inDirectory, outDirectory) {
                     if (mime.lookup(filename) === "text/css") {
                         var source = fs.readFileSync(inDirectory + filename, 'utf8');
                         postcss([
-                                autoprefixer({
-                                    browsers: [
-                                        "> 0.5%",
-                                        "IE 10"
-                                    ]
-                                }),
+                                autoprefixer(),
                                 cleanCSS()
                             ])
                             .process(source, { from: inDirectory + filename, to: outDirectory + filename })
@@ -129,12 +124,7 @@ function readDirRecursive(inDirectory, outDirectory) {
                                 console.error(err);
                             } else {
                                 postcss([
-                                        autoprefixer({
-                                            browsers: [
-                                                "> 0.5%",
-                                                "IE 10"
-                                            ]
-                                        }),
+                                        autoprefixer(),
                                         cleanCSS()
                                     ])
                                     .process(result.css, { from: inDirectory + filename, to: outDirectory.replace(/\/s(a|c)ss/, "/css") + filename.replace(/\.s(a|c)ss/, ".css") })
@@ -163,12 +153,7 @@ function readDirRecursive(inDirectory, outDirectory) {
                                 console.error(err);
                             } else {
                                 postcss([
-                                        autoprefixer({
-                                            browsers: [
-                                                "> 0.5%",
-                                                "IE 10"
-                                            ]
-                                        }),
+                                        autoprefixer(),
                                         cleanCSS()
                                     ])
                                     .process(result.css, { from: inDirectory + filename, to: outDirectory.replace("/less", "/css") + filename.replace(".less", ".css") })

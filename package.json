@@ -43,5 +43,10 @@
     "svgo": "^1.1.1",
     "uglify-js": "^3.4.9",
     "underscore": "^1.9.1"
-  }
+  },
+  "browserslist": [
+    "last 1 version",
+    "> 1%",
+    "IE 10"
+  ]
 }
