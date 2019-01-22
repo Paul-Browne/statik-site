@@ -1,22 +1,26 @@
 {
 	"template-1": {
-		"html": "base",
+		"content": "base",
 		"htmlClass": "[PH1] standard",
-		"head": "head",
-		"favicons": "head/favicons",
-		"meta": {
-			"engine": "mustache",
-			"template" : "templates/head/meta.mustache",
-			"data": "data/head/meta.json",
-			"object": "[PH1]"
+		"head": {
+			"content": "head",
+			"meta": {
+				"template": "templates/head/meta.mustache",
+				"engine": "mustache",
+				"data": "data/head/meta.json",
+				"object": "[PH1]"
+			},
+			"favicons": "head/favicons",
+			"head-css": "head/css",
+			"head-js":"head/js"
 		},
-		"head-css":"head/css",
-		"head-js":"head/js",
-		"body": "body",
-		"header": "body/header",
-		"footer": "body/footer",
-		"body-js": "body/js",
-		"google-analytics": "body/google-analytics",
-		"main": "body/main/[PH1]"
+		"body": {
+			"content": "body",
+			"header": "body/header",
+			"footer": "body/footer",
+			"body-js": "body/js",
+			"google-analytics": "body/google-analytics",
+			"main": "body/main/[PH1]"
+		}
 	}
 }

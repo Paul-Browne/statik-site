@@ -72,68 +72,67 @@ function isExternal(path) {
     }
 }
 
-async function generateHTML(mapObj, obj) {
+async function generateHTML(inHTML){
     var output;
-    for (var key in mapObj) {
-        var string = new RegExp("\\[\\[" + key + "(\\|\\|.*?\\]\\]\|\\]\\])");
+    for (var key in inHTML) {
+        var string = new RegExp("\\[\\[" + inHTML[key].replace + "(\\|\\|.*?\\]\\]\|\\]\\])");
         var fileContents;
-        if (key === "html") {
-            if (isExternal(mapObj[key])) {
-                output = await _request(replacePlaceholders(mapObj[key], obj));
+        var template;
+        var data;
+        if (inHTML[key].replace === "html") {
+            if (isExternal(inHTML[key].content)) {
+                output = await _request(inHTML[key].content);
             } else {
-                output = fs.readFileSync(contentDirectoryPath + "/" + replacePlaceholders(mapObj[key], obj) + ".html", 'utf8');
+                output = fs.readFileSync(contentDirectoryPath + "/" + inHTML[key].content + ".html", 'utf8');
             }
-        } else if (typeof mapObj[key] === 'object') {
-            var template;
-            if (isExternal(mapObj[key].template)) {
-                template = await _request(replacePlaceholders(mapObj[key].template, obj));
+        }else if(inHTML[key].engine || inHTML[key].data) {
+            if (isExternal(inHTML[key].content)) {
+                template = await _request(inHTML[key].content);
             } else {
-                template = fs.readFileSync(contentDirectoryPath + "/" + replacePlaceholders(mapObj[key].template, obj), 'utf8');
+                template = fs.readFileSync(contentDirectoryPath + "/" + inHTML[key].content, 'utf8');
             }
-            var data;
-            if (isExternal(mapObj[key].data)) {
-                data = await _request(replacePlaceholders(mapObj[key].data, obj));
+            if (isExternal(inHTML[key].data)) {
+                data = await _request(inHTML[key].data);
             } else {
-                data = fs.readFileSync(contentDirectoryPath + "/" + replacePlaceholders(mapObj[key].data, obj), 'utf8');
+                data = fs.readFileSync(contentDirectoryPath + "/" + inHTML[key].data, 'utf8');
             }
-            if (mapObj[key].object) {
-                data = JSON.parse(data)[replacePlaceholders(mapObj[key].object, obj)];
+            if (inHTML[key].object) {
+                data = JSON.parse(data)[inHTML[key].object];
             } else {
                 data = JSON.parse(data);
             }
-            if (mapObj[key].engine) {
-                if (mapObj[key].engine === "mustache") {
+            if (inHTML[key].engine) {
+                if (inHTML[key].engine === "mustache") {
                     fileContents = mustache.render(template, data);
-                } else if (mapObj[key].engine === "ejs") {
+                } else if (inHTML[key].engine === "ejs") {
                     fileContents = ejs.render(template, data);
-                } else if (mapObj[key].engine === "handlebars") {
+                } else if (inHTML[key].engine === "handlebars") {
                     template = handlebars.compile(template);
                     fileContents = template(data);
-                } else if (mapObj[key].engine === "underscore" || mapObj[key].engine === "_") {
+                } else if (inHTML[key].engine === "underscore" || inHTML[key].engine === "_") {
                     template = underscore.template(template);
                     fileContents = template(data);
-                } else if (mapObj[key].engine === "dot") {
+                } else if (inHTML[key].engine === "dot") {
                     template = dot.template(template);
                     fileContents = template(data);
-                } else if (mapObj[key].engine === "pug") {
+                } else if (inHTML[key].engine === "pug") {
                     template = pug.compile(template);
                     fileContents = template(data);
-                } else if (mapObj[key].engine === "art") {
+                } else if (inHTML[key].engine === "art") {
                     fileContents = art.render(template, data);
                 }
             } else {
-                // default to mustache template engine if engine is undefined
                 fileContents = mustache.render(template, data);
-            }
-        } else {
+            }            
+        }else {
             try {
-                if (isExternal(mapObj[key])) {
-                    fileContents = await _request(replacePlaceholders(mapObj[key], obj));
+                if (isExternal(inHTML[key].content)) {
+                    fileContents = await _request(inHTML[key].content);
                 } else {
-                    fileContents = fs.readFileSync(contentDirectoryPath + "/" + replacePlaceholders(mapObj[key], obj) + ".html", 'utf8');
+                    fileContents = fs.readFileSync(contentDirectoryPath + "/" + inHTML[key].content + ".html", 'utf8');
                 }
             } catch (err) {
-                fileContents = replacePlaceholders(mapObj[key], obj);
+                fileContents = inHTML[key].content;
             }
         }
         output = output.replace(string, fileContents);
@@ -141,34 +140,52 @@ async function generateHTML(mapObj, obj) {
     return output;
 }
 
+function flatten(json, placeholders, output, rep){
+    for(var key in json){
+        var obj = {};
+        if(typeof json[key] === 'object' && json[key] !== null){
+            flatten(json[key], placeholders, output, key);
+        }else{
+            obj.replace = rep;
+            if(key !== "content" && key !== "template"){
+                obj.replace = key;
+            }
+            obj.content = replacePlaceholders(json[key], placeholders);
+            if(key === "engine" || key === "data" || key === "object"){
+                output[output.length-1][key] = replacePlaceholders(json[key], placeholders);
+            }else{
+                output.push(obj);
+            }
+        }
+    }
+}
+
 function createFile(name, dir, obj) {
+    name = ~name.indexOf(".") ? name : name + ".html";
     var dirPath = dir ? "/" + dir : "";
     var data = fs.readFileSync('contentmap.json', 'utf8');
     var json = JSON.parse(data);
-    var html;
-    for (var key in json) {
-        if (key === obj[0]) {
-            var mapObj = json[key];
-            generateHTML(mapObj, obj).then(out => {
-                html = removeUnusedPlaceholders(out);
-                html = replacePlaceholdersWithDefaults(html);
-                html = minify(html, {
-                    removeAttributeQuotes: false,
-                    collapseWhitespace: true,
-                    minifyCSS: true,
-                    minifyJS: true,
-                    removeComments: true,
-                    decodeEntities: true
-                });
-                fs.writeFile(publicDirectoryName + dirPath + "/" + name + ".html", html, function(err) {
-                    if (err) {
-                        console.error(err);
-                    }
-                });
-                //console.log("https://localhost:8888/" + dirPath + (dirPath ? "/" : "") + name);
-                console.log(publicDirectoryName + dirPath + "/" + name + ".html generated, total time elapsed " + ( (Date.now() - timerStart) / 1000).toFixed(2) + " seconds");
-            })
-        }
+    var html = [];
+    if(json[obj[0]]){
+        flatten(json[obj[0]], obj, html, "html");
+        generateHTML(html).then(out => {
+            html = removeUnusedPlaceholders(out);
+            html = replacePlaceholdersWithDefaults(html);
+            html = minify(html, {
+                removeAttributeQuotes: false,
+                collapseWhitespace: true,
+                minifyCSS: true,
+                minifyJS: true,
+                removeComments: true,
+                decodeEntities: true
+            });
+            fs.writeFile(publicDirectoryName + dirPath + "/" + name, html, function(err) {
+                if (err) {
+                    console.error(err);
+                }
+            });
+            console.log(publicDirectoryName + dirPath + "/" + name + " generated, total time elapsed " + ( (Date.now() - timerStart) / 1000).toFixed(2) + " seconds");
+        });
     }
 }
 
@@ -191,7 +208,6 @@ function jsonWalker(obj, lvl) {
                 jsonWalker(obj[key], key);
             }
         } else if (obj[key] instanceof Array) {
-            // create file
             createFile(key, lvl, obj[key]);
         }
     }
@@ -212,6 +228,5 @@ function buildHtml() {
         }
     });
 }
-
 
 buildHtml();
