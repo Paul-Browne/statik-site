@@ -1,18 +1,21 @@
-body{
-	font-family: 'Open Sans';
+body {
+  font-family: "Open Sans";
+  background-image: url("/images/2000/andre-benz-unsplash.jpg");
+  background-size: cover;
 }
 
 html.index main,
-html.four-zero-four main{
-	min-height: calc(100vh - 100px);
-	display: flex;
-	align-items: center;
-	justify-content: center;
+html.four-zero-four main {
+  min-height: calc(100vh - 100px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
 }
 
-html.standard footer.body{
-	color: #fff;
-	text-align: center;
-	background: #666;
-	padding: 1rem 0;
+html.standard footer.body {
+  color: #fff;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1rem 0;
 }

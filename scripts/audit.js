@@ -1,31 +1,8 @@
-var timerStart = Date.now();
-
-const path = require("path");
 const fs = require('fs-extra');
-const os = require('os');
 const env = require('dotenv');
 env.config();
-const mkdirp = require('mkdirp');
-const minify = require('html-minifier').minify;
-const request = require('request');
 
-// template engines 
-const mustache = require('mustache');
-const handlebars = require('handlebars');
-const underscore = require('underscore');
-const art = require('art-template');
-const ejs = require('ejs');
-const dot = require('dot');
-const pug = require('pug');
-
-const publicDirectoryName = process.env.PUBLIC_DIR_NAME || 'public';
-const sourceDirectoryName = process.env.SOURCE_DIR_NAME || 'src';
-const contentDirectoryName = process.env.CONTENT_DIR_NAME || 'content';
-const contentDirectoryPath = sourceDirectoryName + "/" + contentDirectoryName;
 const siteName = process.env.SITE_NAME;
-
-
-
 
 function qwe(){
     console.log("\n" + "Total pages: " + pages + "\n");
