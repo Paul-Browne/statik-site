@@ -1,4 +1,8 @@
 {
   "index": ["template-1", "index"],
-  "404": ["template-1", "four-zero-four"]
+  "404": ["template-1", "four-zero-four"],
+  "hello=": {
+    "index": ["template-1", "index"],
+    "=@-": ["template-1", "index"]
+  }
 }

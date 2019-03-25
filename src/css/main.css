@@ -1,7 +1,5 @@
 body {
   font-family: "Open Sans";
-  background-image: url("/images/2000/andre-benz-unsplash.jpg");
-  background-size: cover;
 }
 
 html.index main,
@@ -10,12 +8,19 @@ html.four-zero-four main {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: #ddd;
 }
 
 html.standard footer.body {
-  color: #fff;
+  color: #ddd;
   text-align: center;
   background: rgba(0, 0, 0, 0.5);
   padding: 1rem 0;
+}
+
+html.index canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -3;
 }

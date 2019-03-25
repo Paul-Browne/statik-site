@@ -25,7 +25,7 @@
     "ejs": "^2.6.1",
     "express": "^4.16.3",
     "fs-extra": "^7.0.0",
-    "handlebars": "^4.0.12",
+    "handlebars": "^4.1.1",
     "html-minifier": "^3.5.21",
     "image-size": "^0.6.3",
     "jimp": "^0.6.0",
