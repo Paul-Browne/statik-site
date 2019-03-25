@@ -1,3 +1,4 @@
+const net = require('net');
 const fs = require('fs-extra');
 const os = require('os');
 const http = require('http');
@@ -16,7 +17,15 @@ const publicDirectoryName = process.env.PUBLIC_DIR_NAME || 'public';
 const utility = require('./utility.js');
 const build = require('./build.js');
 
-function serverSetup(protocal) {
+const isPortTaken = (p) => new Promise((resolve, reject) => {
+    const tester = net.createServer()
+         .once('error', err => (err.code == 'EADDRINUSE' ? resolve(true) : reject(err)))
+         .once('listening', () => tester.once('close', () => resolve(false)).close())
+         .listen(p)
+})
+
+
+function serverSetup(protocal, port) {
     var app = express();
     app.use(compression())
     app.use(serveStatic(publicDirectoryName, {
@@ -27,28 +36,28 @@ function serverSetup(protocal) {
         http2.createServer({
             key: fs.readFileSync(os.homedir() + process.env.SSL_KEY_PATH, 'utf8'),
             cert: fs.readFileSync(os.homedir() + process.env.SSL_CRT_PATH, 'utf8')
-        }, app).listen(8888);
+        }, app).listen(port);
     } else {
-        http.createServer(app).listen(8888);
+        http.createServer(app).listen(port);
     }
-    utility.consoleTimestampedMessage(chalk.magenta("serving: ") + publicDirectoryName + "/ at " + protocal + "://localhost:8888");
+    utility.consoleTimestampedMessage(chalk.magenta("serving: ") + publicDirectoryName + "/ at " + protocal + "://localhost:" + port);
 }
-function startServer(){
+function startServer(port){
     fs.open('./.env', 'r', (err) => {
         if (err) {
             if (err.code === 'ENOENT') {
                 utility.consoleTimestampedMessage(chalk.yellow("warning: ") + "no .env file found");
-                serverSetup("http");
+                serverSetup("http", port);
                 watching();
             }
         } else {
             fs.readFile('./.env', 'utf8', (err, data) => {
                 if (data.indexOf('SSL_CRT_PATH') < 0 || data.indexOf('SSL_KEY_PATH') < 0 || data.indexOf('#SSL_CRT_PATH') > 0 || data.indexOf('# SSL_CRT_PATH') > 0 || data.indexOf('#SSL_KEY_PATH') > 0 || data.indexOf('# SSL_KEY_PATH') > 0) {
                     utility.consoleTimestampedMessage(chalk.yellow("warning: ") + "no SSL_CRT_PATH and/or SSL_KEY_PATH found in .env file");
-                    serverSetup("http");
+                    serverSetup("http", port);
                     watching();
                 } else {
-                    serverSetup("https");
+                    serverSetup("https", port);
                     watching();
                 }
             })
@@ -75,4 +84,17 @@ function watching() {
     utility.consoleTimestampedMessage(chalk.magenta("watching: ") + sourceDirectoryName + " directory, contentmap.json and sitemap.json");
 }
 
-startServer();
+
+
+var port = 8888;
+function tryPorts(port){
+    isPortTaken(port).then(res => {
+        if(res){
+            port++;
+            tryPorts(port);
+        }else{
+            startServer(port);
+        }
+    })
+}
+tryPorts(port);
