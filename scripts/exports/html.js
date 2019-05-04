@@ -108,7 +108,7 @@ async function generateHTML(inHTML, temp){
                 try {
                     data = fs.readFileSync(contentDirectoryPath + "/" + inHTML[key].data, 'utf8');
                 } catch(e) {
-                    utility.consoleTimestampedMessage(chalk.red("error: ") + "'" + contentDirectoryPath + "/" + inHTML[key].data + ".html' not found (referenced in '" + temp + "')");
+                    utility.consoleTimestampedMessage(chalk.red("error: ") + "'" + contentDirectoryPath + "/" + inHTML[key].data + " not found (referenced in '" + temp + "')");
                 }
             }
             if (inHTML[key].object) {
@@ -198,14 +198,14 @@ function createFile(name, dir, obj) {
         generateHTML(html, obj[0]).then(out => {
             html = removeUnusedPlaceholders(out);
             html = replacePlaceholdersWithDefaults(html);
-            html = minify(html, {
-                removeAttributeQuotes: false,
-                collapseWhitespace: true,
-                minifyCSS: true,
-                minifyJS: true,
-                removeComments: true,
-                decodeEntities: true
-            });
+            // html = minify(html, {
+            //     removeAttributeQuotes: false,
+            //     collapseWhitespace: true,
+            //     minifyCSS: true,
+            //     minifyJS: true,
+            //     removeComments: true,
+            //     decodeEntities: true
+            // });
             fs.writeFile(publicDirectoryName + dirPath + "/" + name, html, function(err) {
                 if (err) {
                     console.error(err);

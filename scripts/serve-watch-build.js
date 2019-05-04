@@ -13,9 +13,9 @@ env.config();
 
 const sourceDirectoryName = process.env.SOURCE_DIR_NAME || 'src';
 const publicDirectoryName = process.env.PUBLIC_DIR_NAME || 'public';
-
-const utility = require('./utility.js');
-const build = require('./build.js');
+const utility = require('./exports/utility.js');
+const build = require('./exports/build.js');
+const prettify = require('./exports/pretty.js');
 
 const isPortTaken = (p) => new Promise((resolve, reject) => {
     const tester = net.createServer()
@@ -67,23 +67,23 @@ function startServer(port){
 
 
 function watching() {
-    var watcher = chokidar.watch([sourceDirectoryName, 'contentmap.json', 'sitemap.json'], {
-        persistent: true,
-        ignoreInitial: true
-    });
     var time = Date.now();
+    var watcher = chokidar.watch([sourceDirectoryName, 'contentmap.json', 'sitemap.json'], {
+        // ignored: /data\/wp/,
+        ignoreInitial: true,
+        persistent: true
+    });
     watcher.on('all', (event, path) => {
         if (event !== "unlink" && event !== "unlinkDir") {
-            utility.prettify(path);
+            prettify(path);
         }
         if(Date.now() > (time + 1000) ){
             time = Date.now();
-            build(0);
+            build(path);
         }
     })
     utility.consoleTimestampedMessage(chalk.magenta("watching: ") + sourceDirectoryName + " directory, contentmap.json and sitemap.json");
 }
-
 
 
 var port = 8888;
@@ -97,4 +97,10 @@ function tryPorts(port){
         }
     })
 }
+
 tryPorts(port);
+
+prettify();
+build();
+
+

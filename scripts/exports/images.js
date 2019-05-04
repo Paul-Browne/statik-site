@@ -16,6 +16,9 @@ function imageMaker(obj) {
                 console.log(err);
             } else {
                 file.resize(obj.width, jimp.AUTO).quality(obj.quality).write(reformatOutputDirectory(obj.dirOut, obj.width), function(){
+                	// TODO only 'compress' images if the filesize will be less than the original
+                	// console.log(fs.statSync(obj.dirIn).size);
+                	// console.log(fs.statSync(reformatOutputDirectory(obj.dirOut, obj.width)).size);
                 	utility.consoleTimestampedMessage(chalk.green("built: ") + reformatOutputDirectory(obj.dirOut, obj.width) + " " + chalk.yellow(utility.humanReadableFilesize(reformatOutputDirectory(obj.dirOut, obj.width))) );
                 });
             }
@@ -75,5 +78,4 @@ module.exports = function(inDirectory, outDirectory){
 	    dirOut: outDirectory,
 	    quality: 75
 	});
-	utility.addTimeStamp(inDirectory);
 }
