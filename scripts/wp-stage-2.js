@@ -85,4 +85,11 @@ for(var key in posts){
     });    
 };
 
- 
+fs.removeSync("src/content/data/wp-json/comments.id.json");
+fs.removeSync("src/content/data/wp-json/tags.slug.json");
+fs.removeSync("src/content/data/wp-json/categories.slug.json");
+fs.removeSync("src/content/data/wp-json/users.slug.json");
+fs.removeSync("src/content/data/wp-json/posts.slug.json");
+fs.removeSync("src/content/data/wp-json/pages.slug.json");
+
+

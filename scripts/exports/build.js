@@ -20,10 +20,10 @@ const svgFunc = require('./svg.js');
 const htmlFunc = require('./html.js');
 
 function init(_path){
-    var buildStamp = fs.readFileSync(".buildStamp", 'utf8');
+    var buildStamp = JSON.parse(fs.readFileSync(".buildStamp", 'utf8'));
     function fileHasBeenChangedSinceLastBuild(path, buildStamp){
         var check = fs.statSync(path);
-        if ( check.mtimeMs > buildStamp || check.ctimeMs > buildStamp ) {
+        if ( check.mtimeMs > buildStamp.lastBuild || check.ctimeMs > buildStamp.lastBuild ) {
             return true;
         }else{
             return false;
@@ -41,10 +41,36 @@ function init(_path){
         });
     }
 
+    var totalFiles = 0;
+    var totalDirectories = 0;
+    var totalSize = 0;
+    var mimes = {};
+    
+    function humanReadableFilesize(num){
+        if(num > 999999){
+            return (num / 1000000).toFixed(0) + " Mb";
+        }else if (num > 999) {
+            return (num / 1000).toFixed(0) + " Kb";
+        }else {
+            return num + " bytes";
+        }
+    }
+
     function walkSync(inDirectory, outDirectory) {
         if (fs.statSync(inDirectory).isDirectory()) {
+            totalDirectories++;
             fs.readdirSync(inDirectory).map(subDirectory => walkSync(path.join(inDirectory, subDirectory), path.join(outDirectory, subDirectory)))
         } else {
+            totalFiles++;
+            totalSize += fs.statSync(inDirectory).size;
+            var mimeType = path.extname(inDirectory).replace(".", "");
+            if(mimeType){
+                if(mimes[mimeType]){
+                    mimes[mimeType] += 1;
+                }else{
+                    mimes[mimeType] = 1;
+                }
+            }
             if (inDirectory.indexOf(contentDirectoryPath) === 0) {
                 if (!htmlFuncCalled && fileHasBeenChangedSinceLastBuild(inDirectory, buildStamp)) {
                     utility.consoleTimestampedMessage(chalk.cyan("processed: ") + inDirectory + " " + chalk.yellow(utility.humanReadableFilesize(inDirectory)));
@@ -91,8 +117,13 @@ function init(_path){
         walkSync(_path, _path.replace(sourceDirectoryName, publicDirectoryName));
     }else{
         walkSync(sourceDirectoryName, publicDirectoryName);
+        buildStamp.totalFiles = totalFiles;
+        buildStamp.totalSize = humanReadableFilesize(totalSize);
+        buildStamp.totalDirectories = totalDirectories;
+        buildStamp.mimeTypes = mimes;
     }
-    fs.writeFileSync(".buildStamp",  Date.now());
+    buildStamp.lastBuild = Date.now();
+    fs.writeFileSync(".buildStamp", JSON.stringify( buildStamp ));
 }
 
 module.exports = function(_path) {

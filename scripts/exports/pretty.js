@@ -10,10 +10,10 @@ const sourceDirectoryName = process.env.SOURCE_DIR_NAME || 'src';
 const utility = require('./utility.js');
 
 function init(_path){
-	var buildStamp = fs.readFileSync(".buildStamp", 'utf8');
+	var buildStamp = JSON.parse(fs.readFileSync(".buildStamp", 'utf8'));
 	function fileHasBeenChangedSinceLastBuild(path, buildStamp){
 	    var check = fs.statSync(path);
-	    if ( check.mtimeMs > buildStamp || check.ctimeMs > buildStamp ) {
+	    if ( check.mtimeMs > buildStamp.lastBuild || check.ctimeMs > buildStamp.lastBuild ) {
 	        return true;
 	    }else{
 	        return false;

@@ -8,7 +8,7 @@ env.config();
 const publicDirectoryName = process.env.PUBLIC_DIR_NAME || 'public';
 
 function purge(){
-    fs.writeFileSync(".buildStamp", "0" );
+    fs.writeFileSync(".buildStamp", JSON.stringify({lastBuild:0}));
 	fs.removeSync(publicDirectoryName);
 	utility.consoleTimestampedMessage(chalk.red("deleted: " ) + publicDirectoryName + "/");
 	utility.consoleTimestampedMessage(chalk.red("reset: " ) + ".buildStamp\n");
