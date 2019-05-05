@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const env = require('dotenv');
 env.config();
 
-const siteName = process.env.SITE_NAME;
+const siteName = process.env.SITE_NAME || "https://example.com";
 
 function qwe(){
     console.log("\n" + "Total pages: " + pages + "\n");

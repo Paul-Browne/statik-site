@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "audit": "node --max_old_space_size=4096 scripts/audit.js",
-    "purge": "node --max_old_space_size=4096 scripts/purge.js",
-    "serve-watch-build": "node --max_old_space_size=4096 scripts/serve-watch-build.js",
-    "start": "npm run serve-watch-build"
+    "audit": "node scripts/audit.js",
+    "purge": "node scripts/purge.js",
+    "start": "node scripts/serve-watch-build.js",
+    "wp-stage-1": "node scripts/wp-stage-1.js",
+    "wp-stage-2": "node scripts/wp-stage-2.js",
+    "wordpress": "npm run wp-stage-1 && npm run wp-stage-2"
   },
   "author": "",
   "license": "MIT",

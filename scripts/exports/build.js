@@ -23,7 +23,7 @@ function init(_path){
     var buildStamp = JSON.parse(fs.readFileSync(".buildStamp", 'utf8'));
     function fileHasBeenChangedSinceLastBuild(path, buildStamp){
         var check = fs.statSync(path);
-        if ( check.mtimeMs > buildStamp.lastBuild || check.ctimeMs > buildStamp.lastBuild ) {
+        if ( check.mtimeMs > new Date(buildStamp.lastBuild) || check.ctimeMs > new Date(buildStamp.lastBuild) ) {
             return true;
         }else{
             return false;
@@ -122,7 +122,7 @@ function init(_path){
         buildStamp.totalDirectories = totalDirectories;
         buildStamp.mimeTypes = mimes;
     }
-    buildStamp.lastBuild = Date.now();
+    buildStamp.lastBuild = new Date();
     fs.writeFileSync(".buildStamp", JSON.stringify( buildStamp ));
 }
 
