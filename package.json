@@ -33,7 +33,7 @@
     "less": "^3.9.0",
     "mkdirp": "^0.5.1",
     "mustache": "^3.0.0",
-    "node-sass": "^4.11.0",
+    "node-sass": "^7.0.0",
     "postcss": "^7.0.6",
     "postcss-clean": "^1.1.0",
     "prettier": "^1.16.4",
