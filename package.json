@@ -1,55 +1,32 @@
 {
-  "name": "",
-  "version": "1.0.0",
-  "description": "",
+  "name": "statik-site",
+  "version": "2.0.0",
+  "description": "A static site generator",
+  "main": "index.js",
+  "type": "module",
   "scripts": {
-    "audit": "node scripts/audit.js",
-    "purge": "node scripts/purge.js",
-    "start": "node scripts/serve-watch-build.js",
-    "wp-stage-1": "node scripts/wp-stage-1.js",
-    "wp-stage-2": "node scripts/wp-stage-2.js",
-    "wordpress": "npm run wp-stage-1 && npm run wp-stage-2"
+    "serve": "node --watch serve.js",
+    "build": "nodemon build.js"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Paul-Browne/statik-site.git"
+  },
+  "author": "Paul Browne",
   "license": "MIT",
-  "devDependencies": {
-    "@babel/core": "^7.1.6",
-    "@babel/preset-env": "^7.1.6",
-    "art-template": "^4.13.2",
-    "autoprefixer": "^9.3.1",
-    "chalk": "^2.4.2",
-    "chokidar": "^2.0.4",
-    "compression": "^1.7.3",
-    "dot": "^1.1.2",
-    "dotenv": "^6.1.0",
-    "ejs": "^2.6.1",
-    "express": "^4.16.3",
-    "fs-extra": "^7.0.0",
-    "handlebars": "^4.1.1",
-    "html-minifier": "^3.5.21",
-    "htmlparser2": "^3.10.1",
-    "image-size": "^0.6.3",
-    "jimp": "^0.6.0",
-    "less": "^3.9.0",
-    "mkdirp": "^0.5.1",
-    "mustache": "^3.0.0",
-    "node-sass": "^4.11.0",
-    "postcss": "^7.0.6",
-    "postcss-clean": "^1.1.0",
-    "prettier": "^1.16.4",
-    "pug": "^2.0.3",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2",
-    "serve-static": "^1.13.2",
-    "spdy": "^3.4.7",
-    "svgo": "^1.1.1",
-    "uglify-js": "^3.4.9",
-    "underscore": "^1.9.1"
+  "bugs": {
+    "url": "https://github.com/Paul-Browne/statik-site/issues"
   },
-  "browserslist": [
-    "last 1 version",
-    "> 1%",
-    "IE 10"
-  ],
-  "dependencies": {}
+  "homepage": "https://github.com/Paul-Browne/statik-site#readme",
+  "dependencies": {
+    "esbuild": "^0.19.3",
+    "html-minifier": "^4.0.0",
+    "x-to-css": "^2.0.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "compression": "^1.7.4"
+  }
 }
